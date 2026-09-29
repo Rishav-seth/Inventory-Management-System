@@ -1,0 +1,22 @@
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #d8e2da;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.actions button {
+  padding: 7px 9px;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 760px) {
+  .actions {
+    flex-wrap: wrap;
+  }
+}
