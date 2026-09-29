@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: inventory-management-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: CLIENT_URL
+        value: https://inventory-management-client.onrender.com
+
+  - type: static
+    name: inventory-management-client
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://inventory-management-api.onrender.com

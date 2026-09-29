@@ -46,3 +46,24 @@ The frontend runs at `http://localhost:5173` and the backend runs at `http://loc
 ```text
 npm run build
 ```
+
+## Deploy to Render
+
+The root `render.yaml` defines two Render services:
+
+- `inventory-management-api` — Node/Express backend
+- `inventory-management-client` — React static frontend
+
+1. Push this repository to GitHub.
+2. In Render, choose **New > Blueprint** and select this repository.
+3. Add your MongoDB Atlas connection string to the backend service as `MONGODB_URI`.
+4. Render will build both services and provide their public URLs.
+5. The frontend uses `VITE_API_URL` and the backend uses `CLIENT_URL` so the two deployed services can communicate.
+
+The expected URL pattern is:
+
+- Frontend: `https://inventory-management-client.onrender.com`
+- Backend: `https://inventory-management-api.onrender.com`
+- Health check: `https://inventory-management-api.onrender.com/api/health`
+
+Render may add a suffix if those service names are already taken. Use the actual generated backend URL in `VITE_API_URL` and the actual frontend URL in `CLIENT_URL` if they differ.
