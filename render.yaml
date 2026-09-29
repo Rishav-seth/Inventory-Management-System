@@ -11,7 +11,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: CLIENT_URL
-        value: https://inventory-management-client.onrender.com
+        value: https://inventory-management-system-frontend-0s7m.onrender.com
 
   - type: web
     name: inventory-management-client
@@ -21,4 +21,4 @@ services:
     staticPublishPath: client/dist
     envVars:
       - key: VITE_API_URL
-        value: https://inventory-management-api.onrender.com
+        value: https://inventory-management-system-agqt.onrender.com
