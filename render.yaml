@@ -3,6 +3,7 @@ services:
     name: inventory-management-api
     runtime: node
     rootDir: server
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
