@@ -21,4 +21,4 @@ services:
     staticPublishPath: client/dist
     envVars:
       - key: VITE_API_URL
-        value: https://inventory-management-system-agqt.onrender.com
+        value: https://inventory-management-system-api-kuyo.onrender.com
