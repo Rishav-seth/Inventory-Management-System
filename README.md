@@ -1,69 +1,203 @@
 # Inventory Management System
 
-A beginner-friendly MERN inventory management system built incrementally.
+A beginner-friendly MERN inventory management system for managing products, stock levels, and low-stock alerts.
 
-## Phase 1 scope
+## Features
 
-Phase 1 creates the React frontend and Express backend, connects the backend to MongoDB Atlas, and verifies frontend/backend communication through a health-check request.
+- Add, view, edit, and delete products
+- Stock in and stock out operations
+- Backend protection against negative stock
+- Dynamic `IN_STOCK`, `LOW_STOCK`, and `OUT_OF_STOCK` status
+- Search by product name or SKU
+- Filter by category and stock status
+- Dashboard totals and low-stock list
+- Loading, empty, and error states
+- MongoDB Atlas persistence
 
-Product CRUD, stock operations, validation, dashboard calculations, and product pages will be added in later phases.
+## Technology
+
+- Frontend: React and Vite
+- Backend: Node.js and Express
+- Database: MongoDB with Mongoose
+- API: REST
+- State management: React `useState` and `useEffect`
+- Deployment: Render
+
+## Project Structure
+
+```text
+inventory-management/
+├── client/
+│   └── src/
+│       ├── components/
+│       │   ├── ProductForm/
+│       │   │   ├── ProductForm.jsx
+│       │   │   └── ProductForm.css
+│       │   └── ProductTable/
+│       │       ├── ProductTable.jsx
+│       │       └── ProductTable.css
+│       ├── pages/
+│       │   ├── Dashboard/
+│       │   │   ├── Dashboard.jsx
+│       │   │   └── Dashboard.css
+│       │   └── Products/
+│       │       ├── Products.jsx
+│       │       └── Products.css
+│       ├── services/productApi.js
+│       ├── App.jsx
+│       └── main.jsx
+├── server/
+│   ├── src/
+│   │   ├── config/db.js
+│   │   ├── controllers/productController.js
+│   │   ├── middleware/errorHandler.js
+│   │   ├── models/Product.js
+│   │   └── routes/productRoutes.js
+│   └── server.js
+├── render.yaml
+└── package.json
+```
+
+The backend follows an MVC-style structure: models define data, controllers contain business logic, routes define endpoints, and middleware handles errors.
 
 ## Prerequisites
 
 - Node.js and npm
-- A MongoDB Atlas cluster and connection string
+- A MongoDB Atlas cluster
+- A MongoDB Atlas database user
 
-## Setup
+## Local Setup
 
-1. Open a terminal in this directory.
-2. Install all dependencies:
-
-```text
-npm run install:all
-```
-
-3. Create `server/.env` by copying `server/.env.example`.
-4. Set `MONGODB_URI` to your MongoDB Atlas connection string. Keep the credentials private.
-5. Confirm your Atlas network access rules allow your current IP address.
-
-## Run the project
-
-Start both applications from the project root:
+From the project root, install all dependencies:
 
 ```text
-npm run dev
+npm.cmd run install:all
 ```
 
-The frontend runs at `http://localhost:5173` and the backend runs at `http://localhost:5000`.
+Create `server/.env` from `server/.env.example`:
 
-## Verify Phase 1
+```env
+PORT=5000
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/inventory_management?retryWrites=true&w=majority
+CLIENT_URL=http://localhost:5173
+```
 
-1. Open `http://localhost:5000/api/health` and confirm it returns a success JSON response.
-2. Open `http://localhost:5173` and confirm the page shows **Backend connected**.
-3. Stop the backend and refresh the frontend to confirm it shows a readable connection error.
-4. Build the frontend:
+Do not commit `server/.env`. Make sure the MongoDB Atlas Network Access settings allow your local IP address.
+
+## Run Locally
+
+Start both applications:
 
 ```text
-npm run build
+npm.cmd run dev
 ```
 
-## Deploy to Render
+Local URLs:
 
-The root `render.yaml` defines two Render services:
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:5000`
+- Health check: `http://localhost:5000/api/health`
 
-- `inventory-management-api` — Node/Express backend
-- `inventory-management-client` — React static frontend
+Build the frontend separately:
 
-1. Push this repository to GitHub.
-2. In Render, choose **New > Blueprint** and select this repository.
-3. Add your MongoDB Atlas connection string to the backend service as `MONGODB_URI`.
-4. Render will build both services and provide their public URLs.
-5. The frontend uses `VITE_API_URL` and the backend uses `CLIENT_URL` so the two deployed services can communicate.
+```text
+npm.cmd run build
+```
 
-The expected URL pattern is:
+## Product Model
 
-- Frontend: `https://inventory-management-client.onrender.com`
-- Backend: `https://inventory-management-api.onrender.com`
-- Health check: `https://inventory-management-api.onrender.com/api/health`
+Products contain:
 
-Render may add a suffix if those service names are already taken. Use the actual generated backend URL in `VITE_API_URL` and the actual frontend URL in `CLIENT_URL` if they differ.
+```text
+name: String, required
+sku: String, required and unique
+category: String, required
+price: Number, greater than or equal to 0
+stock: Integer, greater than or equal to 0
+lowStockThreshold: Integer, greater than or equal to 0
+createdAt: Date
+updatedAt: Date
+```
+
+Stock status is calculated dynamically and is not stored in MongoDB:
+
+```text
+stock === 0                 -> OUT_OF_STOCK
+stock <= lowStockThreshold  -> LOW_STOCK
+otherwise                   -> IN_STOCK
+```
+
+## API Endpoints
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/health` | Check server availability |
+| GET | `/api/products` | List products |
+| GET | `/api/products/:id` | Get one product |
+| POST | `/api/products` | Create a product |
+| PUT | `/api/products/:id` | Update a product |
+| DELETE | `/api/products/:id` | Delete a product |
+| POST | `/api/products/:id/stock-in` | Increase stock |
+| POST | `/api/products/:id/stock-out` | Decrease stock |
+
+Stock request body:
+
+```json
+{
+	"quantity": 10
+}
+```
+
+Stock quantities must be positive integers. Stock out cannot exceed available stock.
+
+The product list endpoint supports these query parameters:
+
+```text
+/api/products?search=keyboard&category=Electronics&status=LOW_STOCK
+```
+
+## Render Deployment
+
+The root [render.yaml](render.yaml) defines the backend web service and frontend static site.
+
+1. Push the repository to GitHub.
+2. In Render, choose **New → Blueprint**.
+3. Select the repository and the `main` branch.
+4. Add `MONGODB_URI` when Render prompts for the secret.
+5. Ensure MongoDB Atlas allows the Render service to connect.
+6. Deploy both services.
+
+Backend environment variables:
+
+```text
+MONGODB_URI=your MongoDB Atlas connection string
+CLIENT_URL=https://inventory-management-system-frontend-0s7m.onrender.com
+```
+
+Frontend environment variable:
+
+```text
+VITE_API_URL=https://inventory-management-system-agqt.onrender.com
+```
+
+Current deployment URLs:
+
+- Frontend: [inventory-management-system-frontend-0s7m.onrender.com](https://inventory-management-system-frontend-0s7m.onrender.com)
+- Backend: [inventory-management-system-agqt.onrender.com](https://inventory-management-system-agqt.onrender.com)
+- Backend health check: [api/health](https://inventory-management-system-agqt.onrender.com/api/health)
+
+If Render assigns different URLs, update `CLIENT_URL` and `VITE_API_URL` in the Render service environment variables and redeploy.
+
+## Troubleshooting
+
+### Backend returns `x-render-routing: no-server`
+
+The hostname is not connected to an active Render web service. Confirm the backend service uses `server` as its root directory and copy the actual External URL from Render.
+
+### MongoDB connection fails
+
+Check the `MONGODB_URI`, database-user credentials, Atlas Network Access rules, and that the cluster is running. Never share the URI or password publicly.
+
+### Frontend cannot reach the API
+
+Check that `VITE_API_URL` points to the live backend URL, `CLIENT_URL` points to the live frontend URL, and the frontend has been redeployed after changing environment variables.
